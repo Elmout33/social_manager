@@ -74,7 +74,10 @@ function App() {
     <Layout>
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Social Manager</h1>
+            <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Social Manager</h1>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">v1.1</span>
+            </div>
             <p className="text-slate-500 mt-1">Liste des publications à gérer.</p>
         </div>
         <div className="flex items-center gap-2">

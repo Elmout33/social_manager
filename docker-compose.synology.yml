@@ -1,0 +1,11 @@
+version: '3'
+services:
+  social-manager:
+    # Au lieu de 'build: .', on pointe vers l'image construite par GitHub
+    image: ghcr.io/elmout33/social_manager:latest
+    container_name: social-manager
+    ports:
+      - "8080:80"
+    restart: always
+    # Optionnel: Si l'image ne se met pas à jour, décommentez ceci :
+    # pull_policy: always
