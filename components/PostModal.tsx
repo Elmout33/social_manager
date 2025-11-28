@@ -56,10 +56,20 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
       const dateToSave = dateStr ? new Date(dateStr).toISOString() : null;
       let imagePath = post.image;
 
+      // 1. Upload de l'image si modifiée
       if (fileToUpload) {
-        imagePath = await uploadPostImage(fileToUpload);
+        try {
+          imagePath = await uploadPostImage(fileToUpload);
+        } catch (uploadError: any) {
+          // Gestion spécifique erreur Storage RLS
+          if (uploadError.message && (uploadError.message.includes("row-level security") || uploadError.message.includes("new row violates"))) {
+            throw new Error("STORAGE_RLS_ERROR");
+          }
+          throw uploadError;
+        }
       }
 
+      // 2. Update du post
       await updatePost(post.id, {
         text,
         status,
@@ -68,9 +78,22 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
       });
 
       onUpdate(); 
-    } catch (e) {
-      alert("Erreur lors de la sauvegarde");
-      console.error(e);
+    } catch (e: any) {
+      console.error("Erreur sauvegarde:", e);
+      
+      const message = e.message || "";
+      
+      if (message === "STORAGE_RLS_ERROR" || message.includes("row-level security") || message.includes("new row violates")) {
+        alert(
+          "⛔ ERREUR DE PERMISSION SUPABASE (RLS)\n\n" +
+          "L'envoi a été bloqué par la sécurité de Supabase.\n\n" +
+          "SOLUTION :\n" +
+          "Vous devez autoriser l'accès 'Public' ou 'Anon' dans les 'Policies' de votre Bucket Storage (pour les images) et de votre Table 'posts'.\n\n" +
+          "Exécutez le script SQL fourni dans le chat."
+        );
+      } else {
+        alert(`Erreur lors de la sauvegarde : ${message || "Erreur inconnue"}`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -169,7 +192,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
             {/* GAUCHE: Éditeur */}
             <div className="flex-1 flex flex-col overflow-y-auto border-r border-slate-200 bg-white p-6 gap-6">
                 
-                {/* 1. Image Upload - HAUTEUR RÉDUITE ICI (h-40) */}
+                {/* 1. Image Upload - HAUTEUR RÉDUITE (h-40) */}
                 <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Visuel</label>
                     <div 
