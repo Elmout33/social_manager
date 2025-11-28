@@ -7,5 +7,5 @@ services:
     ports:
       - "8080:80"
     restart: always
-    # Optionnel: Si l'image ne se met pas à jour, décommentez ceci :
-    # pull_policy: always
+    # Force le téléchargement de la nouvelle image à chaque (re)démarrage
+    pull_policy: always
