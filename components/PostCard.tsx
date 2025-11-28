@@ -72,6 +72,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated }) => {
     }
   }, [post.publication_date]);
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case PostStatus.PUBLISHED: return 'bg-green-100 text-green-700 border-green-200';
+      case PostStatus.TO_PUBLISH: return 'bg-blue-100 text-blue-700 border-blue-200';
+      case PostStatus.REJECTED: return 'bg-red-100 text-red-700 border-red-200';
+      case PostStatus.TO_VALIDATE: return 'bg-amber-100 text-amber-700 border-amber-200';
+      default: return 'bg-slate-100 text-slate-600 border-slate-200';
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all hover:shadow-md h-full">
       {/* Header with Network and Status */}
@@ -95,9 +105,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated }) => {
                         onChange={(e) => setEditedStatus(e.target.value)}
                         className="text-xs border border-slate-300 rounded px-2 py-1.5 bg-white focus:ring-2 focus:ring-indigo-500 shadow-sm"
                     >
-                        <option value={PostStatus.TO_VERIFY}>{PostStatus.TO_VERIFY}</option>
+                        <option value={PostStatus.TO_VALIDATE}>{PostStatus.TO_VALIDATE}</option>
+                        <option value={PostStatus.TO_PUBLISH}>{PostStatus.TO_PUBLISH}</option>
+                        <option value={PostStatus.PUBLISHED}>{PostStatus.PUBLISHED}</option>
                         <option value={PostStatus.REJECTED}>{PostStatus.REJECTED}</option>
-                        <option value={PostStatus.VALIDATED}>{PostStatus.VALIDATED}</option>
                     </select>
                     <input 
                         type="datetime-local"
@@ -107,10 +118,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onPostUpdated }) => {
                     />
                 </div>
             ) : (
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full border 
-                    ${post.status === PostStatus.VALIDATED ? 'bg-green-100 text-green-700 border-green-200' : 
-                      post.status === PostStatus.REJECTED ? 'bg-red-100 text-red-700 border-red-200' : 
-                      'bg-amber-100 text-amber-700 border-amber-200'}`}>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(post.status as string)}`}>
                     {post.status || 'Inconnu'}
                 </span>
             )}

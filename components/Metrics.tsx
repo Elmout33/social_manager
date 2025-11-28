@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Post, SocialNetwork, PostStatus } from '../types';
@@ -27,20 +28,25 @@ const Metrics: React.FC<MetricsProps> = ({ posts }) => {
       }
   };
 
-  // Mise à jour pour les nouveaux statuts demandés
+  // Mise à jour pour les nouveaux statuts (4 valeurs)
   const statusData = [
       { 
-        name: PostStatus.VALIDATED, 
-        value: posts.filter(p => p.status === PostStatus.VALIDATED).length, 
+        name: PostStatus.PUBLISHED, // Publié (Vert)
+        value: posts.filter(p => p.status === PostStatus.PUBLISHED).length, 
         color: '#22c55e' 
       },
       { 
-        name: PostStatus.TO_VERIFY, 
-        value: posts.filter(p => p.status === PostStatus.TO_VERIFY).length, 
+        name: PostStatus.TO_PUBLISH, // A publier (Bleu)
+        value: posts.filter(p => p.status === PostStatus.TO_PUBLISH).length, 
+        color: '#3b82f6' 
+      },
+      { 
+        name: PostStatus.TO_VALIDATE, // A valider (Jaune/Orange)
+        value: posts.filter(p => p.status === PostStatus.TO_VALIDATE).length, 
         color: '#f59e0b' 
       },
       { 
-        name: PostStatus.REJECTED, 
+        name: PostStatus.REJECTED, // Rejeté (Rouge)
         value: posts.filter(p => p.status === PostStatus.REJECTED).length, 
         color: '#ef4444' 
       },
@@ -74,12 +80,12 @@ const Metrics: React.FC<MetricsProps> = ({ posts }) => {
                         <div className="relative w-full flex items-end justify-center h-32 bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
                              <div 
                                 style={{ height: `${Math.max(stat.value * 15, 5)}%`, backgroundColor: stat.color }} 
-                                className="w-full mx-4 rounded-t-lg transition-all duration-500 opacity-90"
+                                className="w-full mx-2 rounded-t-lg transition-all duration-500 opacity-90"
                              />
                         </div>
                         <div className="mt-3 text-center">
                             <span className="block text-2xl font-bold text-slate-800">{stat.value}</span>
-                            <span className="text-xs text-slate-500 font-medium whitespace-nowrap">{stat.name}</span>
+                            <span className="text-xs text-slate-500 font-medium whitespace-normal leading-tight px-1">{stat.name}</span>
                         </div>
                     </div>
                 ))}

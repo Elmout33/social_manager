@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Post, PostStatus } from '../types';
 import { SOCIAL_COLORS } from '../constants';
@@ -26,9 +27,10 @@ const PostTable: React.FC<PostTableProps> = ({ posts, onSelectPost }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case PostStatus.VALIDATED: return 'bg-green-100 text-green-700 border-green-200';
-      case PostStatus.REJECTED: return 'bg-red-100 text-red-700 border-red-200';
-      case PostStatus.TO_VERIFY: return 'bg-amber-100 text-amber-700 border-amber-200';
+      case PostStatus.PUBLISHED: return 'bg-green-100 text-green-700 border-green-200'; // Publié
+      case PostStatus.TO_PUBLISH: return 'bg-blue-100 text-blue-700 border-blue-200';   // A publier
+      case PostStatus.REJECTED: return 'bg-red-100 text-red-700 border-red-200';        // Rejeté
+      case PostStatus.TO_VALIDATE: return 'bg-amber-100 text-amber-700 border-amber-200'; // A valider
       default: return 'bg-slate-100 text-slate-600 border-slate-200';
     }
   };

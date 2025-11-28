@@ -102,6 +102,31 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
   const network = (post.social_network || 'unknown').toLowerCase();
   const socialColor = SOCIAL_COLORS[network as keyof typeof SOCIAL_COLORS] || SOCIAL_COLORS.unknown;
 
+  // Helpers pour l'affichage (Nom fichier + Compteur caractères)
+  const getDisplayFileName = () => {
+    if (fileToUpload) return fileToUpload.name;
+    if (post.image) {
+       // Extrait le nom du fichier depuis le chemin (ex: post_image/123_test.jpg -> 123_test.jpg)
+       return post.image.split('/').pop() || '';
+    }
+    return '';
+  };
+
+  const getCharLimit = () => {
+      switch(network) {
+          case SocialNetwork.TWITTER: return 280;
+          case SocialNetwork.LINKEDIN: return 3000;
+          case SocialNetwork.INSTAGRAM: return 2200;
+          case SocialNetwork.FACEBOOK: return 63206;
+          default: return 0;
+      }
+  };
+
+  const charLimit = getCharLimit();
+  const charCount = text ? text.length : 0;
+  const isOverLimit = charLimit > 0 && charCount > charLimit;
+  const charDisplay = charLimit > 0 ? `${charCount} / ${charLimit}` : `${charCount} car.`;
+
   // Composant interne pour l'en-tête du téléphone selon le réseau
   const PhoneHeader = () => {
     if (network === SocialNetwork.INSTAGRAM) {
@@ -168,6 +193,29 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
       return <div className="p-3 border-t border-slate-100 mt-2 text-xs text-slate-400">Actions sociales...</div>
   }
 
+  // Helper pour les boutons de statut
+  const getStatusButtonClass = (btnStatus: string, currentStatus: string) => {
+    const isSelected = btnStatus === currentStatus;
+    
+    let baseClass = "flex-1 py-2 text-xs font-medium rounded border transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 ";
+    
+    if (!isSelected) {
+      return baseClass + "bg-white border-slate-200 text-slate-600 hover:bg-slate-50";
+    }
+
+    switch (btnStatus) {
+      case PostStatus.PUBLISHED:
+        return baseClass + "bg-green-600 border-green-600 text-white ring-green-500";
+      case PostStatus.TO_PUBLISH:
+        return baseClass + "bg-blue-600 border-blue-600 text-white ring-blue-500";
+      case PostStatus.REJECTED:
+        return baseClass + "bg-red-600 border-red-600 text-white ring-red-500";
+      case PostStatus.TO_VALIDATE:
+      default:
+        return baseClass + "bg-amber-500 border-amber-500 text-white ring-amber-500";
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div 
@@ -178,7 +226,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
         <div className="px-6 py-3 flex items-center justify-between border-b border-slate-200 bg-slate-50">
            <h2 className="text-lg font-bold text-slate-700 flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${socialColor}`}></span>
-              Édition & Prévisualisation
+              Édition & Prévisualisation du post <span className="capitalize">{network}</span>
            </h2>
            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -194,7 +242,14 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
                 
                 {/* 1. Image Upload - HAUTEUR RÉDUITE (h-40) */}
                 <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Visuel</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 truncate">
+                        Visuel
+                        {getDisplayFileName() && (
+                            <span className="text-xs font-normal text-slate-400 ml-2 font-mono">
+                                ({getDisplayFileName()})
+                            </span>
+                        )}
+                    </label>
                     <div 
                         className="group relative w-full h-40 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors overflow-hidden"
                         onClick={handleImageClick}
@@ -217,11 +272,16 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
 
                 {/* 2. Text Editor - PRENDRA PLUS D'ESPACE (flex-1) */}
                 <div className="flex-1 flex flex-col">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Contenu</label>
+                    <div className="flex justify-between items-baseline mb-2">
+                        <label className="block text-sm font-semibold text-slate-700">Contenu</label>
+                        <span className={`text-xs font-mono ${isOverLimit ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+                            ({charDisplay})
+                        </span>
+                    </div>
                     <textarea
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        className="flex-1 w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm leading-relaxed resize-none min-h-[200px]"
+                        className={`flex-1 w-full p-4 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm leading-relaxed resize-none min-h-[200px] ${isOverLimit ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : 'border-slate-300'}`}
                         placeholder="Rédigez votre post ici..."
                     />
                 </div>
@@ -229,20 +289,41 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
                 {/* 3. Admin Footer (Dans la colonne gauche) */}
                 <div className="bg-slate-50 rounded-lg p-5 border border-slate-200 mt-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Statut</label>
-                            <select 
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-full border-slate-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                            >
-                                <option value={PostStatus.TO_VERIFY}>{PostStatus.TO_VERIFY}</option>
-                                <option value={PostStatus.VALIDATED}>{PostStatus.VALIDATED}</option>
-                                <option value={PostStatus.REJECTED}>{PostStatus.REJECTED}</option>
-                            </select>
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Statut</label>
+                            <div className="flex gap-2 w-full">
+                                <button
+                                    type="button" 
+                                    onClick={() => setStatus(PostStatus.TO_VALIDATE)} 
+                                    className={getStatusButtonClass(PostStatus.TO_VALIDATE, status as string)}
+                                >
+                                    {PostStatus.TO_VALIDATE}
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setStatus(PostStatus.TO_PUBLISH)} 
+                                    className={getStatusButtonClass(PostStatus.TO_PUBLISH, status as string)}
+                                >
+                                    {PostStatus.TO_PUBLISH}
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setStatus(PostStatus.PUBLISHED)} 
+                                    className={getStatusButtonClass(PostStatus.PUBLISHED, status as string)}
+                                >
+                                    {PostStatus.PUBLISHED}
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setStatus(PostStatus.REJECTED)} 
+                                    className={getStatusButtonClass(PostStatus.REJECTED, status as string)}
+                                >
+                                    {PostStatus.REJECTED}
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Publication</label>
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Date de Publication</label>
                             <input 
                                 type="datetime-local" 
                                 value={dateStr}
@@ -251,7 +332,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, onClose, onUpdate }) => {
                             />
                         </div>
                     </div>
-                    <div className="flex gap-3 pt-2 border-t border-slate-200">
+                    <div className="flex gap-3 pt-2 border-t border-slate-200 mt-2">
                          <button onClick={onClose} className="flex-1 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded hover:bg-slate-50">Annuler</button>
                          <button onClick={handleSave} disabled={isSaving} className="flex-1 py-2 text-sm font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700 shadow-sm">
                             {isSaving ? 'Sauvegarde...' : 'Enregistrer'}

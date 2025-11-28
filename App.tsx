@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
 import Layout from './components/Layout';
 import PostTable from './components/PostTable';
@@ -76,7 +77,7 @@ function App() {
         <div>
             <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Social Manager</h1>
-                <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">v1.1</span>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">v1.2</span>
             </div>
             <p className="text-slate-500 mt-1">Liste des publications à gérer.</p>
         </div>
@@ -121,8 +122,9 @@ function App() {
                 className="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full md:w-48 p-2.5"
              >
                 <option value="all">Tous les statuts</option>
-                <option value={PostStatus.TO_VERIFY}>{PostStatus.TO_VERIFY}</option>
-                <option value={PostStatus.VALIDATED}>{PostStatus.VALIDATED}</option>
+                <option value={PostStatus.TO_VALIDATE}>{PostStatus.TO_VALIDATE}</option>
+                <option value={PostStatus.TO_PUBLISH}>{PostStatus.TO_PUBLISH}</option>
+                <option value={PostStatus.PUBLISHED}>{PostStatus.PUBLISHED}</option>
                 <option value={PostStatus.REJECTED}>{PostStatus.REJECTED}</option>
              </select>
         </div>

@@ -1,3 +1,4 @@
+
 export enum SocialNetwork {
   LINKEDIN = 'linkedin',
   TWITTER = 'twitter',
@@ -7,8 +8,9 @@ export enum SocialNetwork {
 }
 
 export enum PostStatus {
-  TO_VERIFY = 'A vérifier',
-  VALIDATED = 'Validé',
+  TO_VALIDATE = 'A valider',
+  TO_PUBLISH = 'A publier',
+  PUBLISHED = 'Publié',
   REJECTED = 'Rejeté'
 }
 
