@@ -1,0 +1,8 @@
+version: '3'
+services:
+  social-manager:
+    build: .
+    container_name: social-manager
+    ports:
+      - "8080:80"
+    restart: unless-stopped

@@ -1,0 +1,5 @@
+{
+  "name": "Social Post Manager",
+  "description": "Application de gestion de posts réseaux sociaux connectée à Supabase",
+  "requestFramePermissions": []
+}
